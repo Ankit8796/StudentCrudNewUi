@@ -1,9 +1,10 @@
 import { Component, OnInit } from '@angular/core';
-import { IreturnMessage, Istudent } from '../../interface/istudent';
+import { IFilterStudent, IreturnMessage, Istudent } from '../../interface/istudent';
 import { Studentservice } from '../../service/studentservice';
 import { CommonModule } from '@angular/common';
 import { Gender } from '../../enums/gender';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { ToastrService } from 'ngx-toastr';
 
 declare var bootstrap: any
 
@@ -24,7 +25,7 @@ export class Student implements OnInit {
   ];
 
 
-  constructor(private studentService: Studentservice, private formBuilder: FormBuilder) { }
+  constructor(private studentService: Studentservice, private formBuilder: FormBuilder,private toastr: ToastrService) { }
 
   ngOnInit(): void {
     this.buildStudentForm();
@@ -33,6 +34,7 @@ export class Student implements OnInit {
 
   buildStudentForm() {
     this.studentForm = this.formBuilder.group({
+      studentId: [0],
       firstName: ['', Validators.required],
       lastName: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
@@ -42,9 +44,13 @@ export class Student implements OnInit {
     });
   }
 
-  getAllStudents() {
-    this.studentService.getAllStudents().subscribe((students: Istudent[]) => {
-      this.studentList = students;
+  getAllStudents() {debugger
+     const studentFilter: IFilterStudent = {
+       pageNumber: 1
+     };
+
+    this.studentService.getAllStudents(studentFilter).subscribe((students: any) => {
+      this.studentList = students.data;
     });
   }
 
@@ -73,6 +79,7 @@ export class Student implements OnInit {
           this.closeModel();
           this.studentForm.reset();
           this.getAllStudents();
+          this.toastr.success('Student added successfully!', 'Success');
         }
 
       },
@@ -85,13 +92,13 @@ export class Student implements OnInit {
 
 
 
-  editStudent(student: Istudent) {
+  editStudent(student: Istudent) {debugger
     this.isEdit = true;
     const formattedDate = student.dateOfBirth
       ? student.dateOfBirth.split('T')[0]
       : '';
     this.studentForm.patchValue({
-      id: student.studentId,
+      studentId: student.studentId,
       firstName: student.firstName,
       lastName: student.lastName,
       email: student.email,
@@ -102,10 +109,10 @@ export class Student implements OnInit {
     this.openModal();
   }
 
-  updateStudent() {
+  updateStudent() {debugger
     this.studentService.updateStudent(this.studentForm.value).subscribe({
       next: (result: IreturnMessage) => {
-        // this.toastr.success('Student Updated!', 'Success');
+        this.toastr.success('Student Updated!', 'Success');
         this.studentForm.reset();
         this.closeModel();
         this.isEdit = false;
@@ -125,12 +132,13 @@ export class Student implements OnInit {
 
     this.studentService.deleteStudent(studentId).subscribe({
       next: () => {
-        alert('Student deleted successfully.');
+        // alert('Student deleted successfully.');
+        this.toastr.success('Student deleted successfully!', 'Success');
         this.getAllStudents();
       },
       error: (err) => {
         console.error(err);
-        alert('Unable to delete student.');
+        this.toastr.error('Unable to delete student.', 'Error');
       }
     });
   }

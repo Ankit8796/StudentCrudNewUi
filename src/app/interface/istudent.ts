@@ -9,8 +9,12 @@ export interface Istudent {
     gender: Gender;
     dateOfBirth: string;
 }
-export interface IreturnMessage
-{
-    message?:string,
-    success:string
+export interface IreturnMessage {
+    message?: string,
+    success: string
+}
+
+export interface IFilterStudent {
+    pageNumber?: number;
+
 }

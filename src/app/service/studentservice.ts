@@ -1,7 +1,7 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { IreturnMessage, Istudent } from '../interface/istudent';
+import { IFilterStudent, IreturnMessage, Istudent } from '../interface/istudent';
 
 @Injectable({
   providedIn: 'root',
@@ -12,15 +12,22 @@ export class Studentservice {
 
   constructor(private http: HttpClient) { }
 
-  getAllStudents(): Observable<Istudent[]> {
-    return this.http.get<Istudent[]>(`${this.baseUrl}/Student/GetStudentDetails`);
+  getAllStudents(Filterstudent:IFilterStudent): Observable<Istudent[]> {
+
+     let params = new HttpParams();
+
+    if (Filterstudent.pageNumber)
+    {debugger
+       params=params.set('pageNumber',Filterstudent.pageNumber);
+    }
+    return this.http.get<Istudent[]>(`${this.baseUrl}/Student/GetStudentDetails`, { params });
   }
 
   createStudent(data: Istudent): Observable<IreturnMessage> {
     return this.http.post<IreturnMessage>(`${this.baseUrl}/Student/CreateStudent`, data);
   }
 
-  updateStudent(data: Istudent): Observable<IreturnMessage> {
+  updateStudent(data: Istudent): Observable<IreturnMessage> {debugger
     return this.http.put<IreturnMessage>(`${this.baseUrl}/Student/UpdateStudent`, data);
   }
 
